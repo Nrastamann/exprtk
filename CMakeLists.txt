@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.25)
 project(exprtk
         DESCRIPTION "exprtk with cmake" VERSION 1.0.0
 )
+set(BUILD_TESTS OFF CACHE BOOL "Build tests")
+set(BUILD_BENCHMARK OFF CACHE BOOL "Build benchmark")
+set(BUILD_EXAMPLES OFF CACHE BOOL "Build examples")
 
 set(namespace exprtk)
 set(CMAKE_CXX_STANDART 23)
@@ -10,29 +13,35 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_DEBUG_POSTFIX d)
 add_library(exprtk exprtk.hpp)
+if(${BUILD_TESTS})
+        add_executable(tests)
+        target_sources(tests PRIVATE tests/exprtk_test.cpp PRIVATE FILE_SET HEADERS BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}")
+endif()
 
-add_executable(tests)
-add_executable(benchmark)
+if(${BUILD_BENCHMARK})
+        add_executable(benchmark)
+        target_sources(benchmark PRIVATE benchmark/exprtk_benchmark.cpp PRIVATE FILE_SET HEADERS BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR})
+endif()
 
-target_sources(tests PRIVATE tests/exprtk_test.cpp PRIVATE FILE_SET HEADERS BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}")
-target_sources(benchmark PRIVATE benchmark/exprtk_benchmark.cpp PRIVATE FILE_SET HEADERS BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR})
+if(${BUILD_TESTS})
+        set(EXAMPLES 
+        "exprtk_simple_example_01;"  "exprtk_simple_example_09;"  "exprtk_simple_example_17;"
+        "exprtk_simple_example_02;"  "exprtk_simple_example_10;"  "exprtk_simple_example_18;"
+        "exprtk_simple_example_03;"  "exprtk_simple_example_11;"  "exprtk_simple_example_19;"
+        "exprtk_simple_example_04;"  "exprtk_simple_example_12;"  "exprtk_simple_example_20;"
+        "exprtk_simple_example_05;"  "exprtk_simple_example_13;"  "exprtk_simple_example_21;"
+        "exprtk_simple_example_06;"  "exprtk_simple_example_14;"  "exprtk_simple_example_22;"
+        "exprtk_simple_example_07;"  "exprtk_simple_example_15;"  "exprtk_simple_example_23;"
+        "exprtk_simple_example_08;"  "exprtk_simple_example_16;"  "exprtk_simple_example_24")
 
-set(EXAMPLES 
-"exprtk_simple_example_01;"  "exprtk_simple_example_09;"  "exprtk_simple_example_17;"
-"exprtk_simple_example_02;"  "exprtk_simple_example_10;"  "exprtk_simple_example_18;"
-"exprtk_simple_example_03;"  "exprtk_simple_example_11;"  "exprtk_simple_example_19;"
-"exprtk_simple_example_04;"  "exprtk_simple_example_12;"  "exprtk_simple_example_20;"
-"exprtk_simple_example_05;"  "exprtk_simple_example_13;"  "exprtk_simple_example_21;"
-"exprtk_simple_example_06;"  "exprtk_simple_example_14;"  "exprtk_simple_example_22;"
-"exprtk_simple_example_07;"  "exprtk_simple_example_15;"  "exprtk_simple_example_23;"
-"exprtk_simple_example_08;"  "exprtk_simple_example_16;"  "exprtk_simple_example_24")
+        foreach(example IN ITEMS ${EXAMPLES})
+                add_executable("${example}")
+                target_sources("${example}" PRIVATE "example/${example}.cpp" PRIVATE FILE_SET HEADERS BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR})
+                target_compile_options("${example}" PRIVATE -Wall -Wextra)
+                target_link_libraries("${example}" exprtk)
+        endforeach()
+endif()
 
-foreach(example IN ITEMS ${EXAMPLES})
- add_executable("${example}")
- target_sources("${example}" PRIVATE "example/${example}.cpp" PRIVATE FILE_SET HEADERS BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR})
- target_compile_options("${example}" PRIVATE -Wall -Wextra)
- target_link_libraries("${example}" exprtk)
-endforeach()
 
 add_library(${namespace}::exprtk ALIAS exprtk)
 
