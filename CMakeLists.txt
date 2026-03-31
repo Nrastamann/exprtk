@@ -59,6 +59,11 @@ generate_export_header(
     export/exprtk/exprtk.hpp
 )
 
+target_include_directories(exprtk PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} 
+        PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/export>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}}>
+)
+
 install(
         TARGETS exprtk
         EXPORT exprtkTargets
@@ -67,6 +72,8 @@ install(
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
+
+#install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 install(
         FILES "${CMAKE_CURRENT_BINARY_DIR}/export/exprtk/exprtk.hpp"
